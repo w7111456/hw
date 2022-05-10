@@ -227,8 +227,8 @@ let _0x134a17 = new Date(),
     _0x459e63 = 1.07,
     _0x2e716e = 0,
     _0x5bc515 = "ksjsb",
-    _0x180c0c = "http://adu1991.xicp.net:5200/ks.json",
-    ksjsbjk = "http://adu1991.xicp.net:5200/ksjsb-ziye.json",
+    _0x180c0c = "https://github.com/w7111456/hw/blob/main/ks.json",
+    ksjsbjk = "https://github.com/w7111456/hw/blob/main/ksjsb-ziye.json",
     _0x75eec0 = "https://127.0.0.1/";
 
 class _0x9d8dda {
