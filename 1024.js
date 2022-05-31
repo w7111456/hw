@@ -7,7 +7,7 @@
 不要跳级提现  不要刷题中打开小程序
 
 [rewrite_local]
-prodenv.toponegames.cn/topone-webapi-sdk/wechat/passAward url script-request-body 1024.js
+prodenv.toponegames.cn/topone-webapi-sdk/wechat/passAward url script-request-body https://raw.githubusercontent.com/w7111456/hw/main/1024.js
 [mitm]
 hostname = prodenv.toponegames.cn
 
