@@ -1,4 +1,5 @@
-const jsname='快手极速版'const $=Env(jsname);
+const jsname='快手极速版'
+const $=Env(jsname);
 const notify=$.isNode()?require('./sendNotify'):'';
 const{default:Request}=require('got/dist/source/core');
 const{
