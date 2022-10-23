@@ -10,7 +10,15 @@ jk.ysptad.com.cn  域名
 例如  123456#abcde
 
 ck填到qmCookie里，多账号 换行 或者@隔开
-加了自动提现 
+
+加了自动提现  
+
+加了自动过验证
+加了更多提现额度  
+
+每天开始运行前需要手动看两篇  
+后面如果有需要验证的文章  
+我测试可以自动过验证 
 */
 
 const $ = new Env("全民阅读");
@@ -24,14 +32,7 @@ let userCount = 0
 ///////////////////////////////////////////////////////////////////
 class UserInfo {
     constructor(str) {
-        this.index = ++userIdx
-        this.idx = `账号 [${this.index}] `
-        try {
-            this.ck = str.split('#')
-            this.u = this.ck[0]
-            this.t = this.ck[1]
-        } catch (e) {
-        }
+        this.index = ++userIdx, this.idx = `账号[${this.index}] `, this.ck = str.split('#'), this.u = this.ck[0], this.t = this.ck[1]
     }
     async getreadurl() {
         try {
@@ -41,10 +42,9 @@ class UserInfo {
             let urlObject = popu(this.ul, body)
             await httpRequest('get', urlObject)
             let result = httpResult;
-            if (result.info.type == '1') console.log(`${this.idx}文章获取成功 `),this.b=1, await $.wait(2000), await this.readfinish()
-            if (result.info.type == '3'){
-                console.log(`${this.idx}已限制阅读  请尝试手动过验证`),  this.fx = 1
-            } 
+            "1" == result.info.type && 1 !== this.dx && (console.log(`文章获取成功 `), this.b = 1, await $.wait(1000), await this.readfinish()),
+                "3" == result.info.type && 1 !== this.dx && (console.log(`已限制阅读   尝试过验证`), this.x = result.info.key, this.c = result.info.url.split("/s/")[1], this.b = 2,
+                    await $.wait(6000), await this.readfinish());
         } catch (e) {
             console.log(e)
         } finally {
@@ -54,21 +54,20 @@ class UserInfo {
     async readfinish() {
         try {
             let t = Date.now()
-            if (2==this.b)this.url = `http://jk.ysptad.com.cn/readfinish?type=${this.x}%7C_%7Chttps%253A%252F%252Fmp.weixin.qq.com%252Fs%252F${this.c}&user_id=${this.u}&uid=${this.t}&time=${t}`;
-            if (1==this.b)this.url = `http://jk.ysptad.com.cn/readfinish?type=&user_id=${this.u}&uid=${this.t}&time=${t}`;
+            if (2 == this.b) this.url = `http://jk.ysptad.com.cn/readfinish?type=${this.x}%7C_%7Chttps%253A%252F%252Fmp.weixin.qq.com%252Fs%252F${this.c}&user_id=${this.u}&uid=${this.t}&time=${t}`;
+            if (1 == this.b) this.url = `http://jk.ysptad.com.cn/readfinish?type=&user_id=${this.u}&uid=${this.t}&time=${t}`;
             let body = ``;
             let urlObject = popu(this.url, body)
             await httpRequest('get', urlObject)
             let result = httpResult;
-            if (result.msg == 'success') console.log(`${this.idx}增加金币-> ${result.info.num} 阅读次数 ${result.info.read_num} 当前金币 ${result.info.read_money}`)
-            if (result.code > 200) console.log(`${this.idx}已达到阅读量 等待刷新`),  this.fx = 1
+            "success" == result.msg && console.log(`增加金币-> ${result.info.num} 阅读次数 ${result.info.read_num} 当前金币 ${result.info.read_money}`),
+                result.code > 200 && (console.log(`已达到阅读量 等待刷新`), this.fx = 1);
         } catch (e) {
             console.log(e)
         } finally {
             return Promise.resolve(1);
         }
     }
-
     async getreadinfo() {
         try {
             let t = Date.now()
@@ -78,8 +77,8 @@ class UserInfo {
             await httpRequest('get', urlObject)
             let result = httpResult;
             if (result.info.read_money) {
-                console.log(`\n${this.idx}今日阅读收益 ${result.info.read_money}金币 阅读需要等待 ${result.info.time}\n`)
-                if (result.info.time!==0)this.fb = 1
+                console.log(`\n今日阅读收益 ${result.info.read_money}金币 阅读等待 [${result.info.time}] \n`)
+                if (result.info.time !== 0) this.fb = 1
             }
         } catch (e) {
             console.log(e)
@@ -87,8 +86,25 @@ class UserInfo {
             return Promise.resolve(1);
         }
     }
-    
-        async profitcount() {
+    async check() {
+        try {
+            let t = Date.now()
+            let url = `http://jk.ysptad.com.cn/getreadinfo?user_id=${this.u}&uid=${this.t}&time=${t}`;
+            let body = ``;
+            let urlObject = popu(url, body)
+            await httpRequest('get', urlObject)
+            let result = httpResult;
+            if (result.info.read_money) {
+                if (result.info.time !== 0) this.dx = 1
+            }
+        } catch (e) {
+            console.log(e)
+        } finally {
+            return Promise.resolve(1);
+        }
+    }
+
+    async profitcount() {
         try {
             let t = Date.now()
             let url = `http://jk.ysptad.com.cn/profitcount?user_id=${this.u}&uid=${this.t}&time=${t}`;
@@ -97,9 +113,12 @@ class UserInfo {
             await httpRequest('get', urlObject)
             let result = httpResult;
             if (result.info.tody) {
-                console.log(`\n${this.idx}当前账号余额 ${result.info.sum}金币 \n`)
-                if (result.info.sum>=3000&&result.info.sum<10000)this.cash=0.3, await this.exchange()
-                if (result.info.sum>=10000)this.cash=1, await this.exchange()
+                console.log(`\n当前账号余额 ${result.info.sum}金币 \n`)
+                this.f = Number(Math.floor(result.info.sum / 1000))
+                if (this.f < 3) console.log(`\n可以提现 ${result.info.sum}金币  ${this.f * 0.1} 元 不满足0.3 提现门槛\n`)
+                this.f >= 3 && this.f < 5 && (this.cash = .3), this.f >= 10 && this.f < 20 && (this.cash = 1), this.f >= 20 && this.f < 50 && (this.cash = 2),
+                    this.f >= 50 && this.f < 100 && (this.cash = 2), this.f >= 100 && this.f < 200 && (this.cash = 10), this.f >= 200 && (this.cash = 20)
+                if (this.f >= 3) console.log(`\n可以提现 ${result.info.sum}金币 去提现 ${this.cash} 元\n`), await this.exchange()
             }
         } catch (e) {
             console.log(e)
@@ -107,7 +126,6 @@ class UserInfo {
             return Promise.resolve(1);
         }
     }
-
     async exchange() {
         try {
             let t = Date.now()
@@ -116,27 +134,30 @@ class UserInfo {
             let urlObject = popu(url, body)
             await httpRequest('get', urlObject)
             let result = httpResult;
-                if (result.info.today==true)console.log(`\n${this.idx}提现: ${this.cash} 成功\n`)
-                if (result.info.today==false)console.log(`\n${this.idx}提现: 今日已成功提现2笔 \n`)
+            !0 == result.info.today && console.log(`
+            提现: ${this.cash} 成功
+            `), !1 == result.info.today && console.log(`
+            提现失败: 今日已成功提现2笔 
+            `);
         } catch (e) {
             console.log(e)
         } finally {
             return Promise.resolve(1);
         }
     }
-
     async task() {
         try {
-            let abc = [...new Array(25).keys()];
+            console.log(`\n=========== ${this.idx} 开始阅读（15）篇文章 ===========\n`)
+            let abc = [...new Array(15).keys()];
             await this.getreadinfo()
-            if (this.fb!==1){
-            for (let id of abc) {
-                await this.getreadurl()
-                if (this.fx == 1) break
-                let waittime = Math.floor(Math.random() * 1000) + 5000;
-                console.log(`${this.idx}开始阅读，等待${waittime / 1000}秒...`)
-                await $.wait(waittime);
-            }}
+            if (this.fb !== 1) {
+                for (let id of abc) {
+                    await this.check()
+                    if (this.dx == 1) break
+                    await this.getreadurl()
+                    if (this.fx == 1) break
+                }
+            }
             await this.profitcount()
         } catch (e) {
             console.log(e)
@@ -144,9 +165,6 @@ class UserInfo {
             return Promise.resolve(1);
         }
     }
-
-
-
 }
 
 !(async () => {
@@ -155,12 +173,10 @@ class UserInfo {
     } else {
         if (!(await checkEnv())) return;
         if (userList.length > 0) {
-            console.log('\n------- 运行 -------\n')
-            taskall = []
+
             for (let user of userList) {
-                taskall.push(user.task())
+                await user.task()
             }
-            await Promise.all(taskall)
         }
     }
 })()
